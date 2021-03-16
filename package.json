@@ -1,0 +1,16 @@
+{
+    "name": "employee-tracker",
+    "version": "1.0.0",
+    "description": "node app for tracking and editing employees",
+    "main": "employeeTracker.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "inquirer": "^6.3.1",
+      "mysql":"2.18.1",
+      "console.table":"0.10.0"
+    }
+  }
