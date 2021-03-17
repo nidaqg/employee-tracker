@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+const render = require('./dist/renderdata');
 
 //create connection
 const connection = mysql.createConnection({
@@ -26,36 +27,52 @@ const runApp = () => {
         type: 'list',
         message:'Hello, What would you like to do today?',
         choices:[
-            'Add department, role or employee',
-            'View department, role or employee',
-            'Update employee roles'
+            'View all Employees, Departments and Roles',
+            'View all Employees by Department',
+            //'View all Employees by Manager',
+            'Add Employee',
+            'Add Department',
+            'Add Role',
+            'Remove Employee',
+            'Update Employee Role',
+            //'Remove Role',
+            //'Remove Department',
+            'View total utilized Budget by Department',
+            //'Update Employee Manager',
+            'Exit'
         ],
     })
     //start relevant function depending on answer chosen by user
     .then((answers) => {
        switch(answers.do_what) {
-           case 'Add department, role or employee':
-               addInfo();
+           case 'View all Employees, Departments and Roles':
+               render.viewAll();
                break;
-           case 'View department, role or employee':
-               viewInfo();
+           case 'View all Employees by Department':
+               render.viewByDep();
                break;
-           case 'Update employee roles':
-               updateInfo();
+           case 'Add Employee':
+               render.addEmployee();
                break;
+           case 'Add Department':
+               render.addDepart();
+               break;
+           case 'Add Role':
+               render.addRole();
+               break;
+           case 'Remove Employee':
+               render.removeEmployee();
+               break;
+           case 'Update Employee Role':
+               render.updateRole();
+               break;
+           case 'View total utilized Budget by Department':
+               render.viewBudget();
+               break
+           case 'Exit':
+               console.log("All Done! Have a great day!");
+               break
        }
     });
 }
-
-const addInfo = () => {
-    console.log('addinfo');
-};
-
-const viewInfo = () => {
-    console.log('view info');
-};
-
-const updateInfo = () => {
-    console.log('update info');
-};
 
