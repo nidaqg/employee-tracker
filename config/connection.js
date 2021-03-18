@@ -1,0 +1,17 @@
+const mysql = require('mysql');
+
+
+
+//create connection
+const connection = mysql.createConnection({
+    host: 'localhost',
+
+    port: 3306,
+    user:'root',
+
+    password:'bootcamp',
+    database:'employees_db',
+});
+
+
+module.exports = connection;

@@ -1,18 +1,8 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const render = require('./dist/renderdata');
-
-//create connection
-const connection = mysql.createConnection({
-    host: 'localhost',
-
-    port: 3306,
-    user:'root',
-
-    password:'bootcamp',
-    database:'employees_db',
-});
+//const render = require('./dist/renderdata');
+const connection = require('./config/connection');
 
 //pass function into connect so it will run when connection established
 connection.connect((err) => {
@@ -46,33 +36,92 @@ const runApp = () => {
     .then((answers) => {
        switch(answers.do_what) {
            case 'View all Employees, Departments and Roles':
-               render.viewAll();
+               viewAll();
                break;
            case 'View all Employees by Department':
-               render.viewByDep();
+               viewByDep();
                break;
            case 'Add Employee':
-               render.addEmployee();
+               addEmployee();
                break;
            case 'Add Department':
-               render.addDepart();
+               addDepart();
                break;
            case 'Add Role':
-               render.addRole();
+               addRole();
                break;
            case 'Remove Employee':
-               render.removeEmployee();
+               removeEmployee();
                break;
            case 'Update Employee Role':
-               render.updateRole();
+               updateRole();
                break;
            case 'View total utilized Budget by Department':
-               render.viewBudget();
+               viewBudget();
                break
            case 'Exit':
-               console.log("All Done! Have a great day!");
+               console.log("All Done! Have a great day!")
+               connection.end();
                break
        }
     });
 }
+
+//function to display all employees, roles and departments
+const viewAll = () => {
+    console.log('-----------------');
+    console.log('VIEW ALL EMPLOYEES');
+    console.log('-----------------');
+    //query to retrieve data from db
+    let query = `SELECT employees.id, employees.first_name, employees.last_name, role.title, role.salary, department.department_name
+    FROM employees 
+    INNER JOIN role ON (role.id = employees.id)
+    INNER JOIN department ON (department.id = role.department_id)
+    ORDER BY employees.id;`;
+    connection.query(query, (err,res) => {
+        if (err) throw err;
+    //display returned data as table
+        console.table(res);
+        runApp();
+    })
+
+};
+
+const viewByDep = () => {
+    console.log('view by department called');
+};
+
+
+
+const addEmployee = () => {
+    console.log('Add a new Employee: ');
+    
+}
+
+const addDepart = () => {
+    console.log('add department called');
+};
+
+const addRole = () => {
+    console.log('add role called');
+};
+
+const removeEmployee = () => {
+    console.log('remove employee called');
+};
+const updateRole = () => {
+    console.log('updateRole called');
+};
+const viewBudget = () => {
+    console.log('view Budget called');
+};
+
+
+
+
+
+
+
+
+
 
