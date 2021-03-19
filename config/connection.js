@@ -11,6 +11,7 @@ const connection = mysql.createConnection({
 
     password:'bootcamp',
     database:'employees_db',
+    multipleStatements: true
 });
 
 
