@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-//const render = require('./dist/renderdata');
 const connection = require('./config/connection');
 const { query } = require('./config/connection');
 
@@ -114,9 +113,8 @@ const viewByDep = () => {
 
 //function to add new employee
 const addEmployee = () => {
-    connection.query = ('SELECT * FROM role', (err,res)=> {
+    connection.query('SELECT * FROM role', (err,res)=> {
         if(err) throw err;
-        console.log(res);
 
     inquirer.prompt([
     {
@@ -151,7 +149,7 @@ const addEmployee = () => {
         })
 
     //query to insert new data
-    connection.query = (
+    connection.query(
         'INSERT INTO employees SET ?',
         {
         first_name: answers.first_name,
@@ -253,8 +251,45 @@ const addRole = () => {
 };
 
 const removeEmployee = () => {
-    console.log('remove employee called');
+    connection.query('SELECT * FROM employees', (err,res)=> {
+        if(err) throw err;
+
+    inquirer.prompt({
+        name:"remove_emp",
+        type:"rawlist",
+        choices(){
+            const choicesArray = [];
+        res.forEach(({first_name,last_name}) => {
+            choicesArray.push(first_name +' '+ last_name);
+        });
+        return choicesArray;
+        }
+        
+    })
+    .then((answers) => {
+        let removeEmpID;
+        res.forEach((res) => {
+            if((res.first_name +' '+ res.last_name) === answers.remove_emp) {
+                removeEmpID = res.id;
+            }
+        })
+    connection.query(
+        'DELETE FROM employees WHERE ?',
+        {
+            id:removeEmpID,
+        },
+        (err) => {
+            if(err) throw err;
+            console.log('Employee successfully deleted!');
+            runApp();
+        }
+        )
+    })
+})
 };
+
+
+
 const updateRole = () => {
     console.log('updateRole called');
 };
