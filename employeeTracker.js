@@ -2,7 +2,6 @@ const mysql = require('mysql');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 const connection = require('./config/connection');
-const { query } = require('./config/connection');
 
 //pass function into connect so it will run when connection established
 connection.connect((err) => {
@@ -14,7 +13,7 @@ connection.connect((err) => {
 const runApp = () => {
     inquirer.prompt({
         name:'do_what',
-        type: 'list',
+        type: 'rawlist',
         message:'Hello, What would you like to do today?',
         choices:[
             'View all Employees, Departments and Roles',
@@ -158,7 +157,9 @@ const addEmployee = () => {
         },
         (err) => {
         if(err) throw err;
+        console.log('---------------------------');
         console.log(`New Employee ${answers.first_name} ${answers.last_name} added!`);
+        console.log('---------------------------');
         runApp();
     })
  
@@ -263,8 +264,8 @@ const removeEmployee = () => {
             choicesArray.push(first_name +' '+ last_name);
         });
         return choicesArray;
-        }
-        
+        },
+        message:"Please choose Employee to remove:"
     })
     .then((answers) => {
         let removeEmpID;
@@ -280,7 +281,9 @@ const removeEmployee = () => {
         },
         (err) => {
             if(err) throw err;
+            console.log('------------------------------');
             console.log('Employee successfully deleted!');
+            console.log('------------------------------');
             runApp();
         }
         )
@@ -288,18 +291,159 @@ const removeEmployee = () => {
 })
 };
 
-
-
+//function to update employee role
 const updateRole = () => {
-    console.log('updateRole called');
+let query =
+   `SELECT employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
+    FROM employees 
+    INNER JOIN role ON (role.id = employees.role_id);` 
+    connection.query(query, (err,res) => {
+    if (err) throw err;
+
+    inquirer.prompt([
+        {
+        name:"update_employee",
+        type:"rawlist",
+        choices(){
+        const choicesArray = [];
+        res.forEach(({first_name,last_name}) => {
+            choicesArray.push(first_name + ' ' + last_name);
+        });
+        return choicesArray;
+        },
+        message: "Please choose Employee to update role:"
+        },
+        {
+        name:"role_list",
+        type:"rawlist",
+        choices(){
+            const choices = [];
+            res.forEach(({title}) => {
+            choices.push(title);
+            })
+            return choices;
+            },
+            message: "Please choose new role:"   
+        }
+        ])
+        .then ((answers) => {
+            let updateID;
+            let updateAt;
+            res.forEach((res) => {
+                if((res.title) === answers.role_list) {
+                    updateID = res.id;
+                    console.log(updateID);
+                }
+                if((res.first_name + ' ' + res.last_name) === answers.update_employee) {
+                   updateAt = res.first_name;
+                   console.log(updateAt);
+                }
+            });
+        connection.query(
+            'UPDATE employees SET ? WHERE ?',
+            [
+            {
+             role_id: updateID,
+            },
+            {
+            first_name: updateAt,
+            },
+            ],
+            (err, res)=> {
+                if(err) throw err;
+                console.log('-----------------------------------');
+                console.log('Employee Role updated successfully!');
+                console.log('-----------------------------------');
+                runApp();
+            }
+            )
+        })
+}
+
+)
 };
 
+
+//function to remove role from db
 const removeRole = () => {
-    console.log('remove role');
+    connection.query('SELECT * FROM role', (err,res)=> {
+        if(err) throw err;
+
+    inquirer.prompt({
+        name:"remove_role",
+        type:"rawlist",
+        choices(){
+            const choicesArray = [];
+        res.forEach(({title}) => {
+            choicesArray.push(title);
+        });
+        return choicesArray;
+        },
+        message: "Please choose role to remove:"
+    })
+    .then((answers) => {
+        let removeRoleID;
+        res.forEach((res) => {
+            if((res.title) === answers.remove_role) {
+                removeRoleID = res.id;
+            }
+        })
+    connection.query(
+        'DELETE FROM role WHERE ?',
+        {
+            id:removeRoleID,
+        },
+        (err) => {
+            if(err) throw err;
+            console.log('--------------------------');
+            console.log('Role successfully deleted!');
+            console.log('--------------------------');
+            runApp();
+        }
+        )
+    })
+})
 };
 
+//function to delete department
 const removeDepart = () => {
-    console.log('remove department');
+    connection.query('SELECT * FROM department', (err,res)=> {
+        if(err) throw err;
+
+    inquirer.prompt({
+        name:"remove_depart",
+        type:"rawlist",
+        choices(){
+            const choicesArray = [];
+        res.forEach(({department_name}) => {
+            choicesArray.push(department_name);
+        });
+        return choicesArray;
+        },
+        message: "Please choose Department to remove:"
+    })
+    .then((answers) => {
+        let removeID;
+        res.forEach((res) => {
+            if((res.department_name) === answers.remove_depart) {
+                removeID = res.id;
+            }
+        })
+    connection.query(
+        'DELETE FROM department WHERE ?',
+        {
+            id:removeID,
+        },
+        (err) => {
+            if(err) throw err;
+            console.log('--------------------------------');
+            console.log('Department successfully deleted!');
+            console.log('--------------------------------');
+            runApp();
+        }
+        )
+    })
+})
 }
 const viewBudget = () => {
     console.log('view Budget called');
