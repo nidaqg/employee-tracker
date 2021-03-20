@@ -27,7 +27,6 @@ const runApp = () => {
             'Update Employee Role',
             'Remove Role',
             'Remove Department',
-            'View total utilized Budget by Department',
             'Update Employee Manager',
             'Exit'
         ],
@@ -68,9 +67,6 @@ const runApp = () => {
            case 'Remove Department':
                removeDepart();
                break;
-           case 'View total utilized Budget by Department':
-               viewBudget();
-               break
            case 'Update Employee Manager':
                updateManager();
                break
@@ -375,74 +371,74 @@ const removeEmployee = () => {
 
 //function to update employee role
 const updateRole = () => {
-//query to populate choices for inquirer prompts
-let query =
-   `SELECT employees.id, employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
-    FROM employees 
-    INNER JOIN role ON (role.id = employees.role_id);` 
-    connection.query(query, (err,res) => {
-    if (err) throw err;
-
-    inquirer.prompt([
-        {
-        name:"update_employee",
-        type:"rawlist",
-        choices(){
-        const choicesArray = [];
-        res.forEach(({first_name,last_name}) => {
-            choicesArray.push(first_name + ' ' + last_name);
-        });
-        return choicesArray;
-        },
-        message: "Please choose Employee to update role:"
-        },
-        {
-        name:"role_list",
-        type:"rawlist",
-        choices(){
-            const choices = [];
-            res.forEach(({title}) => {
-            choices.push(title);
-            })
-            return choices;
-            },
-            message: "Please choose new role:"   
-        }
-        ])
-        .then ((answers) => {
-            let updateID;
-            let updateAt;
-            res.forEach((res) => {
-                if((res.title) === answers.role_list) {
-                    updateID = res.id;
-                }
-                if((res.first_name + ' ' + res.last_name) === answers.update_employee) {
-                   updateAt = res.id;
-                }
+    //query to populate choices for inquirer prompts
+    let query =
+       `SELECT employees.id, employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
+        FROM employees 
+        INNER JOIN role ON (role.id = employees.role_id);` 
+        connection.query(query, (err,res) => {
+        if (err) throw err;
+    
+        inquirer.prompt([
+            {
+            name:"update_employee",
+            type:"rawlist",
+            choices(){
+            const choicesArray = [];
+            res.forEach(({first_name,last_name}) => {
+                choicesArray.push(first_name + ' ' + last_name);
             });
-        connection.query(
-            'UPDATE employees SET ? WHERE ?',
-            [
-            {
-             role_id: updateID,
+            return choicesArray;
+            },
+            message: "Please choose Employee to update role:"
             },
             {
-            id: updateAt,
-            },
-            ],
-            (err, res)=> {
-                if(err) throw err;
-                console.log('-----------------------------------');
-                console.log(`Role for ${answers.update_employee} updated successfully!`);
-                console.log('-----------------------------------');
-                runApp();
+            name:"role_list",
+            type:"rawlist",
+            choices(){
+                const choices = [];
+                res.forEach(({title}) => {
+                choices.push(title);
+                })
+                return choices;
+                },
+                message: "Please choose new role:"   
             }
-            )
-        })
-}
-)
-};
-
+            ])
+            .then ((answers) => {
+                let updateID;
+                let updateAt;
+                res.forEach((res) => {
+                    if((res.title) === answers.role_list) {
+                        updateID = res.id;
+                    }
+                    if((res.first_name + ' ' + res.last_name) === answers.update_employee) {
+                       updateAt = res.id;
+                    }
+                });
+            connection.query(
+                'UPDATE employees SET ? WHERE ?',
+                [
+                {
+                 role_id: updateID,
+                },
+                {
+                id: updateAt,
+                },
+                ],
+                (err, res)=> {
+                    if(err) throw err;
+                    console.log('-----------------------------------');
+                    console.log(`Role for ${answers.update_employee} updated successfully!`);
+                    console.log('-----------------------------------');
+                    runApp();
+                }
+                )
+            })
+    }
+    )
+    };
+    
 
 //function to remove role from db
 const removeRole = () => {
