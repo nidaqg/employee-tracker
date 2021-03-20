@@ -30,7 +30,20 @@ This project called for the creation of a node.js application to manage and inte
 
 ## Usage 
 
-This app makes use of inquirer to prompt the user with multiple questions to guide them through interacting with the employees database. The user can view all employees, roles and departments (this will show all departments even if there are no roles/employees associated with them), view employees by department, view employees by manager, add an employee, department or role, remove employee, department or role, update an employee role, update an employee manager or view the total budget.
+This app makes use of inquirer to prompt the user with multiple questions to guide them through interacting with the employees database. The user can:
+ - View all employees, roles and departments (this will show all departments even if there are no roles/employees associated with them), 
+ - View employees by department, 
+ - View employees by role, 
+ - View all managers and view employees by manager ID, 
+ - Add an employee, 
+ - Add a new department,
+ - Add a new role, 
+ - Remove employee, 
+ - Remove department,
+ - Remove a role, 
+ - Update an employee role, 
+ - Update an employee manager
+ - View the total budget.
 
 When done, the user can click exit to end the connection.
 
