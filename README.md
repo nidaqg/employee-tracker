@@ -44,7 +44,7 @@ This app makes use of inquirer to prompt the user with multiple questions to gui
  - Update an employee role, 
  - Update an employee manager
 
-When done, the user can click exit to end the connection.
+When done, the user can click exit to end the connection. A walkthrough can be viewed [here](https://drive.google.com/file/d/12KyX25_8gD7N8WZWh7LvWSoU7UNSTw6C/view)
 
 
 
@@ -80,6 +80,6 @@ SOFTWARE.
 
 The repo for this project can be found here: https://github.com/nidaqg/employee-tracker
 
-video walkthrough link : 
+video walkthrough link : https://drive.google.com/file/d/12KyX25_8gD7N8WZWh7LvWSoU7UNSTw6C/view
 
 For any questions or to report issues, email me at: nidaqg@gmail.com
