@@ -18,7 +18,7 @@ const runApp = () => {
         choices:[
             'View all Employees, Departments and Roles',
             'View all Employees by Department',
-            //'View all Employees by Manager',
+            'View all Employees by Manager',
             'Add Employee',
             'Add Department',
             'Add Role',
@@ -27,7 +27,7 @@ const runApp = () => {
             'Remove Role',
             'Remove Department',
             'View total utilized Budget by Department',
-            //'Update Employee Manager',
+            'Update Employee Manager',
             'Exit'
         ],
     })
@@ -39,6 +39,9 @@ const runApp = () => {
                break;
            case 'View all Employees by Department':
                viewByDep();
+               break;
+           case 'View all Employees by Manager':
+               viewByManager();
                break;
            case 'Add Employee':
                addEmployee();
@@ -64,8 +67,14 @@ const runApp = () => {
            case 'View total utilized Budget by Department':
                viewBudget();
                break
+           case 'Update Employee Manager':
+               updateManager();
+               break
+        //if 'Exit' is chosen, end connection
            case 'Exit':
-               console.log("All Done! Have a great day!")
+               console.log('---------------------------');
+               console.log("All Done! Have a great day!");
+               console.log('---------------------------');
                connection.end();
                break
        }
@@ -99,8 +108,8 @@ const viewByDep = () => {
     //query to retrieve data
     const query = `SELECT department.id, department.department_name AS "Department", employees.first_name AS "First Name", employees.last_name AS "Last Name"
     FROM department
-    INNER JOIN role ON (department.id = role.department_id)
-    INNER JOIN employees ON (role.id = employees.role_id)
+    LEFT JOIN role ON (department.id = role.department_id)
+    LEFT JOIN employees ON (role.id = employees.role_id)
     ORDER BY department.id;`;
     connection.query(query, (err,res)=> {
         if(err) throw err;
@@ -110,11 +119,37 @@ const viewByDep = () => {
     })
 };
 
+//function to display employees by manager
+const viewByManager = () => {
+    console.log('---------------------');
+    console.log('EMPLOYEES BY MANAGER');
+    console.log('---------------------');
+    //query to retrieve data from db
+    const query = `SELECT id, first_name, last_name, manager_id
+    FROM employees
+    ORDER BY id`;
+    connection.query(query, (err,res) => {
+        if (err) throw err;
+        let managerArray = [];
+        res.forEach((res) => {
+            if (res.manager_id != null){
+              managerArray.push(res.first_name + ' ' + res.last_name);
+            }
+            return managerArray;
+        })
+
+        console.log(managerArray);
+        runApp();
+    })
+
+}
+
 //function to add new employee
 const addEmployee = () => {
+//query role table to populate choices for choose_role question
     connection.query('SELECT * FROM role', (err,res)=> {
         if(err) throw err;
-
+//inquirer to get user input to add new employee
     inquirer.prompt([
     {
         name:'first_name',
@@ -176,6 +211,7 @@ const addDepart = () => {
      message: "Please enter new department name: "
     })
     .then((answer)=> {
+    //query to insert new data in db
         connection.query(
             'INSERT INTO department SET ?',
             {
@@ -251,7 +287,9 @@ const addRole = () => {
     });
 };
 
+//function to delete employee from db
 const removeEmployee = () => {
+    //query employees table to populate choices for remove_emp question
     connection.query('SELECT * FROM employees', (err,res)=> {
         if(err) throw err;
 
@@ -274,6 +312,7 @@ const removeEmployee = () => {
                 removeEmpID = res.id;
             }
         })
+    //query to delete chosen employee
     connection.query(
         'DELETE FROM employees WHERE ?',
         {
@@ -281,9 +320,9 @@ const removeEmployee = () => {
         },
         (err) => {
             if(err) throw err;
-            console.log('------------------------------');
-            console.log('Employee successfully deleted!');
-            console.log('------------------------------');
+            console.log('-------------------------------');
+            console.log(`${answers.remove_emp} successfully deleted!`);
+            console.log('-------------------------------');
             runApp();
         }
         )
@@ -293,6 +332,7 @@ const removeEmployee = () => {
 
 //function to update employee role
 const updateRole = () => {
+//query to populate choices for inquirer prompts
 let query =
    `SELECT employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
     FROM employees 
@@ -332,11 +372,9 @@ let query =
             res.forEach((res) => {
                 if((res.title) === answers.role_list) {
                     updateID = res.id;
-                    console.log(updateID);
                 }
                 if((res.first_name + ' ' + res.last_name) === answers.update_employee) {
                    updateAt = res.first_name;
-                   console.log(updateAt);
                 }
             });
         connection.query(
@@ -352,14 +390,13 @@ let query =
             (err, res)=> {
                 if(err) throw err;
                 console.log('-----------------------------------');
-                console.log('Employee Role updated successfully!');
+                console.log(`Role for ${answers.update_employee} updated successfully!`);
                 console.log('-----------------------------------');
                 runApp();
             }
             )
         })
 }
-
 )
 };
 
@@ -396,7 +433,7 @@ const removeRole = () => {
         (err) => {
             if(err) throw err;
             console.log('--------------------------');
-            console.log('Role successfully deleted!');
+            console.log(`${answers.remove_role} successfully deleted from roles!`);
             console.log('--------------------------');
             runApp();
         }
@@ -437,7 +474,7 @@ const removeDepart = () => {
         (err) => {
             if(err) throw err;
             console.log('--------------------------------');
-            console.log('Department successfully deleted!');
+            console.log(`${answers.remove_depart} successfully deleted from Departments!`);
             console.log('--------------------------------');
             runApp();
         }
@@ -445,11 +482,97 @@ const removeDepart = () => {
     })
 })
 }
+
+//function to view budget by department
 const viewBudget = () => {
-    console.log('view Budget called');
+    let query = `SELECT department.department_name AS "Department", department.id, role.title AS "Role", role.salary AS "Salary", employees.role_id, employees.id
+    FROM department
+    INNER JOIN role ON (department.id = role.department_id)
+    INNER JOIN employees ON (role.id = employees.role_id)
+    ORDER BY department.id;`
+    connection.query(query, (err,res)=> {
+        if(err) throw err;
+
+        let totalSalary;
+        res.forEach((res) => {
+         if(res.role_id) {
+             totalSalary+= parseInt(res.salary);
+         }
+         return totalSalary;
+        })
+        console.log(totalSalary);
+        runApp();
+    })
 };
 
+//function to update manager
+const updateManager = () => {
+    connection.query('SELECT * FROM employees', (err,res) => {
+    if(err) throw err;
 
+    inquirer.prompt([
+    {
+    name: "update_where",
+    type: "rawlist",
+    choices() {
+     const choices = [];
+     res.forEach((res) => {
+         if(res.manager_id != null) {
+         choices.push(res.first_name + ' ' + res.last_name);
+         }
+     })
+     return choices;
+    },
+    message: "Please choose an Employee to update their Manager:"
+    },
+    {
+    name:"updated_manager",
+    type:"rawlist",
+    choices (){
+     const choices = [];
+    res.forEach((res) => {
+        if(!res.manager_id) {
+        choices.push(res.first_name + ' ' + res.last_name);
+        }
+         })
+    return choices;
+    },
+    message: "Please choose new Manager for selected Employee:"
+    }
+    ])
+    .then ((answers) => {
+        let updateWhere;
+        let newManagerID;
+
+        res.forEach((res) => {
+            if((res.first_name + ' ' + res.last_name) === answers.update_where) {
+                updateWhere = res.id;
+            }
+            if((res.first_name + ' ' + res.last_name) === answers.updated_manager) {
+               newManagerID = res.id;
+            } 
+        });
+    connection.query(
+    'UPDATE employees SET ? WHERE ?',
+        [
+        {
+        manager_id: newManagerID,
+        },
+        {
+        id: updateWhere,
+        },
+        ],
+        (err, res)=> {
+        if(err) throw err;
+        console.log('-----------------------------');
+        console.log(`Manager for ${answers.update_where} successfully updated!`);
+        console.log('-----------------------------');
+        runApp();
+        }
+    )
+    });
+    });
+};
 
 
 
