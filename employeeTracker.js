@@ -18,7 +18,8 @@ const runApp = () => {
         choices:[
             'View all Employees, Departments and Roles',
             'View all Employees by Department',
-            'View all Employees by Manager',
+            'View all Employees by Role',
+            'View all Employees by Manager ID',
             'Add Employee',
             'Add Department',
             'Add Role',
@@ -40,7 +41,10 @@ const runApp = () => {
            case 'View all Employees by Department':
                viewByDep();
                break;
-           case 'View all Employees by Manager':
+           case 'View all Employees by Role':
+               viewByRole()
+               break;
+           case 'View all Employees by Manager ID':
                viewByManager();
                break;
            case 'Add Employee':
@@ -119,26 +123,50 @@ const viewByDep = () => {
     })
 };
 
+//function to display employees by role
+const viewByRole = () => {
+    console.log('-----------------------');
+    console.log('EMPLOYEES BY ROLE');
+    console.log('-----------------------');
+    //query to retrieve data
+    const query = `SELECT role.id AS "Role ID", role.title AS "Role", role.salary AS "Salary", employees.first_name AS "First Name", employees.last_name AS "Last Name"
+    FROM role
+    LEFT JOIN employees ON (role.id = employees.role_id)
+    ORDER BY role.id;`;
+    connection.query(query, (err,res)=> {
+        if(err) throw err;
+    //display returned data as table
+    console.table(res);
+    runApp();
+    })
+};
+
 //function to display employees by manager
 const viewByManager = () => {
-    console.log('---------------------');
-    console.log('EMPLOYEES BY MANAGER');
-    console.log('---------------------');
     //query to retrieve data from db
     const query = `SELECT id, first_name, last_name, manager_id
-    FROM employees
-    ORDER BY id`;
+    FROM employees;`;
     connection.query(query, (err,res) => {
         if (err) throw err;
         let managerArray = [];
+        let empArray = [];
         res.forEach((res) => {
             if (!res.manager_id){
-              managerArray.push({id: res.id, first_Name:res.first_name, last_Name:res.last_name});
+              managerArray.push({id: res.id, Manager:res.first_name + ' '+res.last_name});
             }
-            return managerArray;
-        })
+            if(res.manager_id !== null){
+              empArray.push({Manager_id: res.manager_id, Employees: res.first_name + ' ' + res.last_name})
+            }
 
+        })
+        console.log('-------------------');
+        console.log('VIEW ALL MANAGERS');
+        console.log('-------------------');
         console.table(managerArray);
+        console.log('----------------------------');
+        console.log('VIEW EMPLOYEES BY MANAGER ID');
+        console.log('---------------------------');
+        console.table(empArray);
         runApp();
     })
 
@@ -154,12 +182,18 @@ const addEmployee = () => {
     {
         name:'first_name',
         type:'input',
-        message:'Please enter the first name of the new employee: '
+        message:'Please enter the first name of the new employee: ',
+        validate: function validateInput(name){
+            return name !== '';
+        }
     },
     {
         name:'last_name',
         type:'input',
-        message:'Please enter the last name of the new employee: '
+        message:'Please enter the last name of the new employee: ',
+        validate: function validateInput(name){
+            return name !== '';
+        }
     },
     {
         name:'choose_role',
@@ -208,7 +242,10 @@ const addDepart = () => {
     inquirer.prompt({
      name:"add_depart",
      type: "input",
-     message: "Please enter new department name: "
+     message: "Please enter new department name: ",
+     validate: function validateInput(name){
+        return name !== '';
+    }
     })
     .then((answer)=> {
     //query to insert new data in db
@@ -239,12 +276,18 @@ const addRole = () => {
         {
         name:"add_role",
         type: "input",
-        message: "Please enter new role title: "
+        message: "Please enter new role title: ",
+        validate: function validateInput(name){
+            return name !== '';
+        }
        },
        {
         name:"add_salary",
         type:"input",
-        message:"Please enter salary for new role: "
+        message:"Please enter salary for new role: ",
+        validate: function validateInput(name){
+            return name !== '';
+        }
        },
        {
         name:"role_depart",
