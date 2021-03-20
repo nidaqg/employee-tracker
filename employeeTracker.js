@@ -377,7 +377,7 @@ const removeEmployee = () => {
 const updateRole = () => {
 //query to populate choices for inquirer prompts
 let query =
-   `SELECT employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
+   `SELECT employees.id, employees.first_name, employees.last_name, employees.role_id, role.title, role.id  
     FROM employees 
     INNER JOIN role ON (role.id = employees.role_id);` 
     connection.query(query, (err,res) => {
@@ -417,7 +417,7 @@ let query =
                     updateID = res.id;
                 }
                 if((res.first_name + ' ' + res.last_name) === answers.update_employee) {
-                   updateAt = res.first_name;
+                   updateAt = res.id;
                 }
             });
         connection.query(
@@ -427,7 +427,7 @@ let query =
              role_id: updateID,
             },
             {
-            first_name: updateAt,
+            id: updateAt,
             },
             ],
             (err, res)=> {
@@ -526,17 +526,6 @@ const removeDepart = () => {
 })
 }
 
-//function to view budget by department
-const viewBudget = () => {
-    let query = `SELECT SUM(salary) AS TotalBudget FROM role`
-    connection.query(query, (err,res)=> {
-        if(err) throw err;
-        console.log('--------------');
-        console.table(res);
-        console.log('--------------');
-        runApp();
-    })
-};
 
 //function to update manager
 const updateManager = () => {

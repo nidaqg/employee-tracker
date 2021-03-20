@@ -4,7 +4,8 @@
     "description": "node app for tracking and editing employees",
     "main": "employeeTracker.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "start": "node employeeTracker.js"
     },
     "author": "",
     "license": "ISC",

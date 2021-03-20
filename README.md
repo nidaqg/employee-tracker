@@ -25,7 +25,7 @@ This project called for the creation of a node.js application to manage and inte
 
 ## Installation
  
- This application makes use of node.js, MySql npm, inquirer npm and console.table npm packages. To install the npm packages, run 'npm i' in the command line. Make sure your MySql workbench is connected, then create and seed the employees database by opening and running the employeetracker.sql and seed.sql files provided. Once the database has been initialized and seeded, run 'node employeeTracker.js' in the command line to start the app.
+ This application makes use of node.js, MySql npm, inquirer npm and console.table npm packages. To install the npm packages, run 'npm i' in the command line. Make sure your MySql workbench is connected, then create and seed the employees database by opening and running the employeetracker.sql and seed.sql files provided. Once the database has been initialized and seeded, run 'npm start' in the command line to start the app.
 
 
 ## Usage 
@@ -43,7 +43,6 @@ This app makes use of inquirer to prompt the user with multiple questions to gui
  - Remove a role, 
  - Update an employee role, 
  - Update an employee manager
- - View the total budget.
 
 When done, the user can click exit to end the connection.
 
