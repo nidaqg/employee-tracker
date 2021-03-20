@@ -83,14 +83,14 @@ const runApp = () => {
 
 //function to display all employees, roles and departments
 const viewAll = () => {
-    console.log('-----------------');
-    console.log('VIEW ALL EMPLOYEES');
-    console.log('-----------------');
+    console.log('-----------------------------------------');
+    console.log('VIEW ALL EMPLOYEES, ROLES AND DEPARTMENTS');
+    console.log('-----------------------------------------');
     //query to retrieve data from db
     const query = `SELECT employees.id, employees.first_name AS "First Name", employees.last_name AS "Last Name", role.title AS "Role", role.salary AS "Salary", department.department_name AS "Department"
     FROM employees 
-    INNER JOIN role ON (role.id = employees.role_id)
-    INNER JOIN department ON (department.id = role.department_id)
+    RIGHT JOIN role ON (role.id = employees.role_id)
+    RIGHT JOIN department ON (department.id = role.department_id)
     ORDER BY employees.id;`;
     connection.query(query, (err,res) => {
         if (err) throw err;
@@ -132,13 +132,13 @@ const viewByManager = () => {
         if (err) throw err;
         let managerArray = [];
         res.forEach((res) => {
-            if (res.manager_id != null){
-              managerArray.push(res.first_name + ' ' + res.last_name);
+            if (!res.manager_id){
+              managerArray.push({id: res.id, first_Name:res.first_name, last_Name:res.last_name});
             }
             return managerArray;
         })
 
-        console.log(managerArray);
+        console.table(managerArray);
         runApp();
     })
 
@@ -485,22 +485,12 @@ const removeDepart = () => {
 
 //function to view budget by department
 const viewBudget = () => {
-    let query = `SELECT department.department_name AS "Department", department.id, role.title AS "Role", role.salary AS "Salary", employees.role_id, employees.id
-    FROM department
-    INNER JOIN role ON (department.id = role.department_id)
-    INNER JOIN employees ON (role.id = employees.role_id)
-    ORDER BY department.id;`
+    let query = `SELECT SUM(salary) AS TotalBudget FROM role`
     connection.query(query, (err,res)=> {
         if(err) throw err;
-
-        let totalSalary;
-        res.forEach((res) => {
-         if(res.role_id) {
-             totalSalary+= parseInt(res.salary);
-         }
-         return totalSalary;
-        })
-        console.log(totalSalary);
+        console.log('--------------');
+        console.table(res);
+        console.log('--------------');
         runApp();
     })
 };
